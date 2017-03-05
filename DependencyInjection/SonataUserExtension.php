@@ -88,12 +88,12 @@ class SonataUserExtension extends Extension
         $profileFormDefinition = $container->getDefinition('sonata.user.profile.form');
         $registrationFormDefinition = $container->getDefinition('sonata.user.registration.form');
         if (method_exists($profileFormDefinition, 'setFactory')) {
-            $profileFormDefinition->setFactory(array('form.factory', 'createNamed'));
-            $registrationFormDefinition->setFactory(array('form.factory', 'createNamed'));
+            $profileFormDefinition->setFactory(array(new Reference('form.factory'), 'createNamed'));
+            $registrationFormDefinition->setFactory(array(new Reference('form.factory'), 'createNamed'));
         } else {
-            $profileFormDefinition->setFactoryClass('form.factory');
+            $profileFormDefinition->setFactoryClass(new Reference('form.factory'));
             $profileFormDefinition->setFactoryMethod('createNamed');
-            $registrationFormDefinition->setFactoryClass('form.factory');
+            $registrationFormDefinition->setFactoryClass(new Reference('form.factory'));
             $registrationFormDefinition->setFactoryMethod('createNamed');
         }
 
@@ -114,6 +114,22 @@ class SonataUserExtension extends Extension
             ->getDefinition('sonata.user.google.authenticator.request_listener')
             ->replaceArgument(1, $tokenStorageReference)
         ;
+
+        if (interface_exists('FOS\UserBundle\Form\Factory\FactoryInterface')) {
+            $container
+                ->getDefinition('sonata.user.orm.user_manager')
+                ->replaceArgument(4, new Reference('fos_user.object_manager'));
+            $container
+                ->getDefinition('sonata.user.orm.group_manager')
+                ->replaceArgument(1, new Reference('fos_user.object_manager'));
+        } else {
+            $container
+                ->getDefinition('sonata.user.orm.user_manager')
+                ->replaceArgument(4, new Reference('fos_user.entity_manager'));
+            $container
+                ->getDefinition('sonata.user.orm.group_manager')
+                ->replaceArgument(1, new Reference('fos_user.entity_manager'));
+        }
 
         $this->registerDoctrineMapping($config);
         $this->configureAdminClass($config, $container);
@@ -311,8 +327,12 @@ class SonataUserExtension extends Extension
      */
     public function configureShortcut(ContainerBuilder $container)
     {
-        $container->setAlias('sonata.user.authentication.form', 'fos_user.profile.form');
-        $container->setAlias('sonata.user.authentication.form_handler', 'fos_user.profile.form.handler');
+        if (interface_exists('FOS\UserBundle\Form\Factory\FactoryInterface')) {
+            $container->setAlias('sonata.user.authentication.form', 'fos_user.profile.form.factory');
+        } else {
+            $container->setAlias('sonata.user.authentication.form', 'fos_user.profile.form');
+        }
+        $container->setAlias('sonata.user.authentication.form_handler', 'sonata.user.profile.form.handler.default');
     }
 
     /**
