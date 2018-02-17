@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<routes xmlns="http://symfony.com/schema/routing" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://symfony.com/schema/routing http://symfony.com/schema/routing/routing-1.0.xsd">
+    <route id="sonata_user_profile_show" path="/" methods="GET">
+        <default key="_controller">sonata.user.profile.controller:showAction</default>
+    </route>
+    <route id="sonata_user_profile_edit_password" path="/edit-password">
+        <default key="_controller">sonata.user.profile.controller:editPasswordAction</default>
+    </route>
+    <route id="sonata_user_profile_edit" path="/edit-profile">
+        <default key="_controller">sonata.user.profile.controller:editProfileAction</default>
+    </route>
+</routes>

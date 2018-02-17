@@ -73,6 +73,13 @@ class SonataUserExtension extends Extension implements PrependExtensionInterface
         $loader->load('twig.xml');
         $loader->load('command.xml');
 
+        $loader->load('registration.xml');
+        $loader->load('resetting.xml');
+        $loader->load('security.xml');
+        $loader->load('profile.xml');
+        $loader->load('block.xml');
+        $loader->load('menu.xml');
+
         if ('orm' === $config['manager_type'] && isset(
             $bundles['FOSRestBundle'],
             $bundles['NelmioApiDocBundle'],
@@ -102,6 +109,10 @@ class SonataUserExtension extends Extension implements PrependExtensionInterface
         $container->setParameter('sonata.user.impersonating', $config['impersonating']);
 
         $this->configureGoogleAuthenticator($config, $container);
+
+        $this->configureProfile($config, $container);
+        $this->configureRegistration($config, $container);
+        $this->configureMenu($config, $container);
     }
 
     /**
@@ -260,6 +271,31 @@ class SonataUserExtension extends Extension implements PrependExtensionInterface
     {
         $container->setAlias('sonata.user.user_manager', sprintf('sonata.user.%s.user_manager', $managerType));
         $container->setAlias('sonata.user.group_manager', sprintf('sonata.user.%s.group_manager', $managerType));
+    }
+
+    private function configureProfile(array $config, ContainerBuilder $container)
+    {
+        $container->setParameter('sonata.user.profile.form.type', $config['profile']['form']['type']);
+        $container->setParameter('sonata.user.profile.form.name', $config['profile']['form']['name']);
+        $container->setParameter('sonata.user.profile.form.validation_groups', $config['profile']['form']['validation_groups']);
+
+        $container->setParameter('sonata.user.register.confirm.redirect_route', $config['profile']['register']['confirm']['redirect']['route']);
+        $container->setParameter('sonata.user.register.confirm.redirect_route_params', $config['profile']['register']['confirm']['redirect']['route_parameters']);
+        $container->setParameter('sonata.user.configuration.profile_blocks', $config['profile']['dashboard']['blocks']);
+    }
+
+    private function configureRegistration(array $config, ContainerBuilder $container)
+    {
+        $bundles = $container->getParameter('kernel.bundles');
+
+        $container->setParameter('sonata.user.registration.form.type', $config['profile']['register']['form']['type']);
+        $container->setParameter('sonata.user.registration.form.name', $config['profile']['register']['form']['name']);
+        $container->setParameter('sonata.user.registration.form.validation_groups', $config['profile']['register']['form']['validation_groups']);
+    }
+
+    private function configureMenu(array $config, ContainerBuilder $container)
+    {
+        $container->getDefinition('sonata.user.profile.menu_builder')->replaceArgument(2, $config['profile']['menu']);
     }
 
     /**

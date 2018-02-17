@@ -139,8 +139,7 @@ class AdminResettingController extends Controller
             $user->setPasswordRequestedAt(null);
             $user->setEnabled(true);
 
-            $message = $this->get('translator')->trans('resetting.flash.success', [], 'FOSUserBundle');
-            $this->addFlash('success', $message);
+            $this->addFlash('success', 'resetting.flash.success');
             $response = new RedirectResponse($this->generateUrl('sonata_admin_dashboard'));
 
             try {
